@@ -4,17 +4,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 public class ReaderDashboard extends JFrame {
     private ReaderPerson reader;
     private String username;
 
-    private JTextField titleField;
+    // private JTextField titleField;
     private JTextField authorField;
-    private JTextField genreField;
+    // private JTextField genreField;
     private JTextArea bookContentArea;
     private JButton searchButton;
     private JButton downloadButton;
+    private JComboBox<String> genreComboBox;
+    private JComboBox<String> bookComboBox;
 
     public ReaderDashboard(ReaderPerson reader) {
         this.reader = reader;
@@ -31,17 +34,18 @@ public class ReaderDashboard extends JFrame {
 
         JPanel inputPanel = new JPanel(new GridLayout(4, 2, 10, 10));
 
+        inputPanel.add(new JLabel("Genre:"));
+        String[] genres = { "Comedy", "Horror", "Romantic", "Historic", "Mythical", "Educational", "Poem" };
+        genreComboBox = new JComboBox<>(genres);
+        inputPanel.add(genreComboBox);
+
         inputPanel.add(new JLabel("Book Title:"));
-        titleField = new JTextField();
-        inputPanel.add(titleField);
+        bookComboBox = new JComboBox<>();
+        inputPanel.add(bookComboBox);
 
         inputPanel.add(new JLabel("Author Name:"));
         authorField = new JTextField();
         inputPanel.add(authorField);
-
-        inputPanel.add(new JLabel("Genre:"));
-        genreField = new JTextField();
-        inputPanel.add(genreField);
 
         searchButton = new JButton("Search Book");
         inputPanel.add(searchButton);
@@ -71,13 +75,26 @@ public class ReaderDashboard extends JFrame {
                 new HomePage(username);
             }
         });
+        genreComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedGenre = (String) genreComboBox.getSelectedItem();
+                if (selectedGenre != null) {
+                    List<String> books = reader.getBooksByGenre(selectedGenre);
+                    bookComboBox.removeAllItems();
+                    for (String bookTitle : books) {
+                        bookComboBox.addItem(bookTitle);
+                    }
+                }
+            }
+        });
         setVisible(true);
     }
 
     private void searchBook() {
-        String title = titleField.getText().trim();
+        String title = (String) bookComboBox.getSelectedItem();
         String author = authorField.getText().trim();
-        String genre = genreField.getText().trim();
+        String genre = (String) genreComboBox.getSelectedItem();
 
         if (title.isEmpty() || author.isEmpty() || genre.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill all fields.", "Input Error", JOptionPane.ERROR_MESSAGE);
