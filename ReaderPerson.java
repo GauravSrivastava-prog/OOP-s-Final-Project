@@ -51,6 +51,23 @@ public class ReaderPerson extends Person {
         return bookTitles;
     }
 
+    public List<String> getBooksByGenre(String genre) {
+        List<String> bookTitles = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            String query = "SELECT title FROM books WHERE genre = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, genre);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                bookTitles.add(rs.getString("title"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving books by user: " + e.getMessage());
+        }
+        return bookTitles;
+    }
+
     public void downloadBook(String bookTitle, String authorName, String genre) {
         try (Connection conn = DatabaseManager.getConnection()) {
             String query = "SELECT content FROM books WHERE title = ? AND author = ? AND genre = ?";
